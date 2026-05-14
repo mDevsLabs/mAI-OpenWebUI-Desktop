@@ -783,7 +783,7 @@ const updateTray = () => {
   // Virtual local connection (when package is installed)
   const localItem = isPackageInstalled('open-webui')
     ? [{
-        label: `${CONFIG.defaultConnectionId === 'local' ? '★ ' : ''}Open WebUI (Local)`,
+        label: `${CONFIG.defaultConnectionId === 'local' ? '★ ' : ''}mAI (Local)`,
         sublabel: SERVER_URL || `http://127.0.0.1:${CONFIG.localServer?.port ?? 8080}`,
         click: async () => {
           const result = await connectTo(buildLocalConnection())
@@ -796,7 +796,7 @@ const updateTray = () => {
 
   const trayMenuTemplate = [
     {
-      label: 'Show Open WebUI',
+      label: 'Show mAI',
       click: () => {
         mainWindow?.show()
         mainWindow?.focus()
@@ -822,7 +822,7 @@ const updateTray = () => {
         ]
       : []),
     {
-      label: 'Quit Open WebUI',
+      label: 'Quit mAI',
       accelerator: 'CommandOrControl+Q',
       click: async () => {
         await stopServerHandler()
@@ -931,7 +931,7 @@ const startServerHandler = async (): Promise<boolean> => {
     if (autoUpdate && !versionPin && isPackageInstalled('open-webui')) {
       try {
         log.info('[server] Auto-updating open-webui package to latest…')
-        sendToRenderer('status:install', 'Updating Open WebUI…')
+        sendToRenderer('status:install', 'Updating mAI…')
         await installPackage('open-webui', undefined, (status: string) => {
           sendToRenderer('status:install', status)
         })
@@ -1160,10 +1160,10 @@ const resetAppHandler = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     await resetApp()
     CONFIG = await getConfig() // reload from defaults since config.json was deleted
-    new Notification({ title: 'Open WebUI', body: 'Application has been reset.' }).show()
+    new Notification({ title: 'mAI', body: 'Application has been reset.' }).show()
   } catch (error) {
     log.error('Failed to reset:', error)
-    new Notification({ title: 'Open WebUI', body: `Reset failed: ${error.message}` }).show()
+    new Notification({ title: 'mAI', body: `Reset failed: ${error.message}` }).show()
   }
 }
 
@@ -1188,12 +1188,12 @@ if (!gotTheLock) {
   })
 
   app.setAboutPanelOptions({
-    applicationName: 'Open WebUI',
+    applicationName: 'mAI',
     iconPath: icon,
     applicationVersion: app.getVersion(),
     version: app.getVersion(),
-    website: 'https://openwebui.com',
-    copyright: `© ${new Date().getFullYear()} Open WebUI`
+    website: 'https://mai-officiel.vercel.app',
+    copyright: `© ${new Date().getFullYear()} mAI`
   })
 
   app.whenReady().then(async () => {
@@ -1201,11 +1201,11 @@ if (!gotTheLock) {
     loadSpotlightPosition()
     log.info('Config:', CONFIG)
 
-    app.name = 'Open WebUI'
+    app.name = 'mAI'
     if (process.platform === 'darwin' && app.dock) {
       app.dock.setIcon(icon)
     }
-    electronApp.setAppUserModelId('com.openwebui.desktop')
+    electronApp.setAppUserModelId('com.mai.desktop')
 
     // ─── GPU Process Crash Recovery ──────────────────
     // If the GPU process exits fatally (e.g. sandbox init failure on

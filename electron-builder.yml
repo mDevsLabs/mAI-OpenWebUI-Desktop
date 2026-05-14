@@ -1,5 +1,5 @@
-appId: com.openwebui.desktop
-productName: Open WebUI
+appId: com.mai.desktop
+productName: mAI
 directories:
   buildResources: build
 files:
@@ -17,7 +17,7 @@ asarUnpack:
   - resources/**
   - node_modules/node-pty/**
 win:
-  executableName: open-webui
+  executableName: mai
 nsis:
   artifactName: ${name}-${arch}-setup.${ext}
   shortcutName: ${productName}
@@ -56,7 +56,7 @@ linux:
     - snap
     - deb
     - flatpak
-  maintainer: openwebui.com
+  maintainer: https://mai-officiel.vercel.app
   category: Utility
 deb:
   artifactName: ${name}_${arch}.${ext}
@@ -84,5 +84,5 @@ flatpak:
 npmRebuild: true
 publish:
   provider: github
-  owner: open-webui
-  repo: desktop
+  owner: mDevsLabs
+  repo: mAI-OpenWebUI-Desktop

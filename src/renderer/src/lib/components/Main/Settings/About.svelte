@@ -176,7 +176,7 @@
   }
 
   const openGithub = () => {
-    window.electronAPI?.openInBrowser?.('https://github.com/open-webui/desktop')
+    window.electronAPI?.openInBrowser?.('https://mai-officiel.vercel.app')
   }
 
   const handleCheck = async () => {
@@ -422,11 +422,11 @@
 
     {#if showReveal}
       <div class="matrix-reveal">
-        <img src={logoImage} alt="Open WebUI" class="matrix-logo-img" />
+        <img src={logoImage} alt="mAI" class="matrix-logo-img" />
       </div>
     {/if}
   </div>
-{/if}
+  {/if}
 
 <style>
   .matrix-overlay {

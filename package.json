@@ -1,11 +1,11 @@
 {
-  "name": "open-webui",
-  "version": "0.0.20",
+  "name": "mai-desktop",
+  "version": "0.0.6",
   "license": "AGPL-3.0",
-  "description": "Open WebUI Desktop",
+  "description": "Avec mAI sur bureau, augmentez votre productivité !",
   "main": "./out/main/index.js",
-  "author": "Open WebUI Inc. (Timothy Jaeryang Baek)",
-  "homepage": "https://openwebui.com",
+  "author": "mDevlopers",
+  "homepage": "https://mai-officiel.vercel.app",
   "scripts": {
     "format": "prettier --plugin prettier-plugin-svelte --write .",
     "lint": "eslint --cache .",

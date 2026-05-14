@@ -5,7 +5,7 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>AGPL-3.0-or-later</project_license>
 
-  <name>Open WebUI</name>
+  <name>mAI</name>
   <summary>The freedom AI stack</summary>
 
   <developer id="com.timbaek">
@@ -14,7 +14,7 @@
 
   <description>
     <p>
-      Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.
+      mAI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.
     </p>
   </description>
 
@@ -25,7 +25,7 @@
   </content_rating>
 
   <url type="bugtracker">https://github.com/open-webui/desktop/issues</url>
-  <url type="homepage">https://openwebui.com</url>
+  <url type="homepage">https://mai-officiel.vercel.app
   <url type="donation">https://github.com/sponsors/tjbck</url>
   <url type="vcs-browser">https://github.com/open-webui/desktop</url>
 

@@ -255,7 +255,7 @@ const downloadPython = async (onProgress = null) => {
 
 const checkInternet = async () => {
   try {
-    await fetch('https://api.openwebui.com', { method: 'GET' })
+    await fetch('https://mai-officiel.vercel.app', { method: 'GET' })
     return true
   } catch {
     return false
@@ -591,7 +591,7 @@ export const startServer = async (
     }
   }
   commandArgs.push('--port', availablePort.toString())
-  log.info('Starting Open-WebUI server...', pythonPath, commandArgs.join(' '))
+  log.info('Starting mAI server...', pythonPath, commandArgs.join(' '))
 
   let ptyProcess: pty.IPty
   try {
