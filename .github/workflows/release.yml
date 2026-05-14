@@ -99,17 +99,13 @@ jobs:
                   cache: npm
 
             - name: Install Dependencies
-              run: npm ci
+              run: npm install
 
             - name: Download Compiled Output
               uses: actions/download-artifact@v4
               with:
                   name: compiled-output
                   path: out/
-
-            # ─────────────────────────────────────────────
-            # Flatpak setup (Linux x64 only)
-            # ─────────────────────────────────────────────
 
             - name: Cache Flatpak SDKs
               if: runner.os == 'Linux' && matrix.arch == 'x64'
@@ -132,69 +128,34 @@ jobs:
 
                   flatpak install --user -y flathub org.electronjs.Electron2.BaseApp//23.08
 
-            # ─────────────────────────────────────────────
-            # Windows packaging
-            # ─────────────────────────────────────────────
-
             - name: Package for Windows
               if: runner.os == 'Windows'
               run: |
-                  npx electron-builder \
-                    --win \
-                    --${{ matrix.arch }} \
-                    --publish never
-
-            # ─────────────────────────────────────────────
-            # Linux packaging
-            # ─────────────────────────────────────────────
+                  npx electron-builder --win --${{ matrix.arch }} --publish never
 
             - name: Package for Linux
               if: runner.os == 'Linux'
               run: |
                   if [ "${{ matrix.arch }}" == "arm64" ]; then
-
-                    npx electron-builder \
-                      --linux AppImage deb \
-                      --${{ matrix.arch }} \
-                      --publish never
-
+                    npx electron-builder --linux AppImage deb --${{ matrix.arch }} --publish never
                   elif [ "${{ steps.flatpak.outcome }}" == "success" ]; then
-
-                    npx electron-builder \
-                      --linux \
-                      --${{ matrix.arch }} \
-                      --publish never
-
+                    npx electron-builder --linux --${{ matrix.arch }} --publish never
                   else
-
-                    npx electron-builder \
-                      --linux AppImage deb snap \
-                      --${{ matrix.arch }} \
-                      --publish never
-
+                    npx electron-builder --linux AppImage deb snap --${{ matrix.arch }} --publish never
                   fi
-
-            # ─────────────────────────────────────────────
-            # Upload artifacts
-            # ─────────────────────────────────────────────
 
             - name: Upload Artifacts
               uses: actions/upload-artifact@v4
-
               with:
                   name: ${{ matrix.os }}-${{ matrix.arch }}
-
                   path: |
                       dist/*.exe
                       dist/*.deb
-                      dist/*.rpm
                       dist/*.AppImage
                       dist/*.snap
-                      dist/*.flatpak
                       dist/*.tar.gz
                       dist/*.blockmap
                       dist/latest*.yml
-
                   if-no-files-found: warn
 
     release:
@@ -220,28 +181,21 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
-
               with:
                   sparse-checkout: |
                       package.json
                       CHANGELOG.md
-
                   sparse-checkout-cone-mode: false
 
-            - name: Get version from package.json
+            - name: Get version
               id: version
-
               run: |
                   VERSION=$(node -p "require('./package.json').version")
-
                   echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-                  echo "Release version: $VERSION"
-
-            - name: Extract changelog for this version
+            - name: Write release notes
               run: |
                   VERSION="${{ steps.version.outputs.version }}"
-
                   NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md)
 
                   if [ -z "$NOTES" ]; then
@@ -252,120 +206,28 @@ jobs:
 
             - name: Download Artifacts
               uses: actions/download-artifact@v4
-
               with:
                   pattern: '*-*'
                   merge-multiple: false
 
-            # ─────────────────────────────────────────────
-            # Merge Linux manifests
-            # ─────────────────────────────────────────────
-
             - name: Install js-yaml
-              run: npm install --no-save js-yaml
-
-            - name: Merge Linux latest-linux.yml
-              run: |
-                  X64_YML="ubuntu-latest-x64/latest-linux.yml"
-                  ARM_YML="ubuntu-24.04-arm-arm64/latest-linux-arm64.yml"
-
-                  if [ -f "$X64_YML" ] && [ -f "$ARM_YML" ]; then
-
-                    node -e "
-                      const fs = require('fs');
-                      const yaml = require('js-yaml');
-
-                      const x64 = yaml.load(fs.readFileSync('$X64_YML', 'utf8'));
-                      const arm = yaml.load(fs.readFileSync('$ARM_YML', 'utf8'));
-
-                      const files = [...(x64.files || []), ...(arm.files || [])];
-
-                      const map = new Map();
-
-                      for (const f of files) {
-                        map.set(f.url, f);
-                      }
-
-                      x64.files = [...map.values()];
-
-                      fs.writeFileSync(
-                        '$X64_YML',
-                        yaml.dump(x64, { lineWidth: -1 })
-                      );
-                    "
-
-                    rm -f "$ARM_YML"
-
-                  fi
-
-            # ─────────────────────────────────────────────
-            # Merge Windows manifests
-            # ─────────────────────────────────────────────
-
-            - name: Merge Windows latest.yml
-              run: |
-                  X64_YML="windows-latest-x64/latest.yml"
-                  ARM_YML="windows-11-arm-arm64/latest.yml"
-
-                  if [ -f "$X64_YML" ] && [ -f "$ARM_YML" ]; then
-
-                    node -e "
-                      const fs = require('fs');
-                      const yaml = require('js-yaml');
-
-                      const x64 = yaml.load(fs.readFileSync('$X64_YML', 'utf8'));
-                      const arm = yaml.load(fs.readFileSync('$ARM_YML', 'utf8'));
-
-                      const files = [...(x64.files || []), ...(arm.files || [])];
-
-                      const map = new Map();
-
-                      for (const f of files) {
-                        map.set(f.url, f);
-                      }
-
-                      x64.files = [...map.values()];
-
-                      fs.writeFileSync(
-                        '$X64_YML',
-                        yaml.dump(x64, { lineWidth: -1 })
-                      );
-                    "
-
-                    rm -f "$ARM_YML"
-
-                  fi
-
-            # ─────────────────────────────────────────────
-            # Create GitHub Release
-            # ─────────────────────────────────────────────
+              run: npm install js-yaml
 
             - name: Create Release
               uses: softprops/action-gh-release@v2
-
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
               with:
                   tag_name: ${{ github.event.inputs.release_tag || format('v{0}', steps.version.outputs.version) }}
-
                   name: ${{ github.event.inputs.release_tag || format('v{0}', steps.version.outputs.version) }}
-
                   body_path: /tmp/release_notes.md
-
-                  draft: false
-
                   prerelease: ${{ github.event.inputs.prerelease == 'true' }}
-
+                  draft: false
                   files: |
                       windows-*-*/*.exe
                       windows-*-*/*.blockmap
-                      windows-*-*/latest*.yml
-
                       ubuntu-*-*/*.deb
-                      ubuntu-*-*/*.rpm
                       ubuntu-*-*/*.AppImage
                       ubuntu-*-*/*.snap
-                      ubuntu-*-*/*.flatpak
                       ubuntu-*-*/*.tar.gz
                       ubuntu-*-*/latest*.yml
